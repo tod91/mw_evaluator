@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	handler.HandleRequest()
+	handler.StartServer()
 }
