@@ -10,12 +10,22 @@ import (
 	"net/http"
 )
 
+func StartServer() {
+	http.HandleFunc("/evaluate", evaluate)
+	http.HandleFunc("/validate", validate)
+	http.HandleFunc("/errors", errors)
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
 func evaluate(w http.ResponseWriter, r *http.Request) {
 	var input map[string]string
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		panic(err.Error())
+		{
+			panic(err.Error())
+		}
 	}
 
 	tokens := parser.Parse(input["expression"])
@@ -40,12 +50,4 @@ func validate(w http.ResponseWriter, _ *http.Request) {
 
 func errors(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-}
-
-func StartServer() {
-	http.HandleFunc("/evaluate", evaluate)
-	http.HandleFunc("/validate", validate)
-	http.HandleFunc("/errors", errors)
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
