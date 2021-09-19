@@ -29,7 +29,7 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tokens := parser.Parse(input["expression"])
-	result := math.Eval(tokens)
+	result, _ := math.Eval(tokens)
 
 	resp := map[string]int{
 		"result": result,
@@ -44,8 +44,33 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 	w.Write(jData)
 }
 
-func validate(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
+func validate(w http.ResponseWriter, r *http.Request) {
+	var input map[string]string
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		{
+			panic(err.Error())
+		}
+	}
+
+	resp := map[string]bool{}
+	tokens := parser.Parse(input["expression"])
+	_, err = math.Eval(tokens)
+	if err != nil {
+		resp["valid"] = false
+	} else {
+		resp["valid"] = true
+	}
+
+	jData, err := json.Marshal(resp)
+	if err != nil {
+		panic("cannot marshal resp")
+	}
+	w.Header().Add("Content-Type", "application/json")
+
+	w.Write(jData)
+
 }
 
 func errors(w http.ResponseWriter, _ *http.Request) {

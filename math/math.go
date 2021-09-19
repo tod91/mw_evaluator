@@ -5,7 +5,7 @@ import (
 	"mw_evaluator/models"
 )
 
-func Eval(tokens []models.Token) int {
+func Eval(tokens []models.Token) (int, error) {
 	result := tokens[2].(models.Operand).GetValue()
 	var next int
 	var operator models.Operator
@@ -34,5 +34,5 @@ func Eval(tokens []models.Token) int {
 		expectOperand = !expectOperand
 	}
 
-	return result
+	return result, nil
 }

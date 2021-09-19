@@ -12,7 +12,9 @@ import (
 //
 // one token is a word until the next white space
 func Parse(expression string) []models.Token {
-	return toTokens(strings.Split(expression, " "))
+	// remove any trailing question marks
+	trimmedEpx := strings.Trim(expression, "?")
+	return toTokens(strings.Split(trimmedEpx, " "))
 }
 
 func toTokens(words []string) []models.Token {
