@@ -49,16 +49,13 @@ func toTokens(w []string) []models.Token {
 	for i := 0; i < len(w); i++ {
 		if w[i] == "multiplied" || w[i] == "divided" {
 			if i+1 < len(w) {
-				if isOperator(w[1] + " " + w[i+1]) {
-					result = append(result, operatorType(w[i-1]+" "+w[i]))
+				if isOperator(w[i] + " " + w[i+1]) {
+					result = append(result, operatorType(w[i]+" "+w[i+1]))
+					i++
+					continue
 				}
 			}
-			//if isOperator(w[1] + " " + w[i + 1]) {
-			//	result = append(result, operatorType(w[i - 1] + " " + w[i]))
-			//} else {
 			result = append(result, models.Trash{})
-			//}
-
 		} else {
 			if num, err := strconv.Atoi(w[i]); err == nil {
 				result = append(result, &models.Number{num})

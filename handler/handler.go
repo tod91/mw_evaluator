@@ -4,7 +4,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"mw_evaluator/math"
 	"mw_evaluator/parser"
@@ -19,15 +18,20 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 
-	result := parser.Parse(input["expression"])
-	resp := math.Eval(result)
+	tokens := parser.Parse(input["expression"])
+	result := math.Eval(tokens)
 
-	fmt.Print(resp)
-	response := make(map[string]int)
-	response["result"] = 42
-	//marshal responce and return
-	w.Write([]byte(input["expression"] + "\n"))
+	resp := map[string]int{
+		"result": result,
+	}
 
+	jData, err := json.Marshal(resp)
+	if err != nil {
+		panic("cannot marshal resp")
+	}
+	w.Header().Add("Content-Type", "application/json")
+
+	w.Write(jData)
 }
 
 func validate(w http.ResponseWriter, _ *http.Request) {
