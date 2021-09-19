@@ -1,3 +1,4 @@
+// Package parser ...
 package parser
 
 import (
@@ -6,73 +7,57 @@ import (
 	"strings"
 )
 
-func isOperator(o string) bool {
-	oSmall := strings.ToLower(o)
-
-	switch oSmall {
-	case "plus":
-		return true
-	case "minus":
-		return true
-	case "divided by":
-		return true
-	case "multiplied by":
-		return true
-
-	default:
-		return false
-	}
+func isOperator(token string) bool {
+	_, err := asOperator(token)
+	return err == nil
 }
 
-func operatorType(o string) models.Operator {
-	oSmall := strings.ToLower(o)
+func asOperator(token string) (models.Operator, error) {
+	return models.NewOperatorFrom(strings.ToLower(token))
+}
 
-	switch oSmall {
-	case "plus":
-		return &models.Plus{}
-	case "minus":
-		return &models.Minus{}
-	case "divided by":
-		return &models.Divide{}
-	case "multiplied by":
-		return &models.Multiply{}
+func isNumber(t string) bool {
+	_, err := asNumber(t)
+	return err == nil
+}
 
-	default:
-		panic("unknown type")
+func asNumber(t string) (int, error) {
+	return strconv.Atoi(t)
+}
+
+func nextWord(words []string, i int) string {
+	if i+1 >= len(words) {
+		return ""
 	}
 
+	return words[i+1]
 }
 
 //TODO clean this up
-func toTokens(w []string) []models.Token {
-	var result []models.Token
-	for i := 0; i < len(w); i++ {
-		if w[i] == "multiplied" || w[i] == "divided" {
-			if i+1 < len(w) {
-				if isOperator(w[i] + " " + w[i+1]) {
-					result = append(result, operatorType(w[i]+" "+w[i+1]))
-					i++
-					continue
-				}
-			}
-			result = append(result, models.Trash{})
-		} else {
-			if num, err := strconv.Atoi(w[i]); err == nil {
-				result = append(result, &models.Number{num})
-				continue
-			}
-			if isOperator(w[i]) {
-				result = append(result, operatorType(w[i]))
-			} else {
-				result = append(result, models.Trash{})
-			}
+func toTokens(words []string) []models.Token {
+	var tokens []models.Token
+	for i := 0; i < len(words); i++ {
+		curr := words[i]
+		if curr == "multiplied" || curr == "divided" {
+			curr += " " + nextWord(words, i)
+			i++
 		}
 
+		if isNumber(curr) {
+			num, _ := asNumber(curr)
+			tokens = append(tokens, &models.Number{Value: num})
+		} else if isOperator(curr) {
+			op, _ := asOperator(curr)
+			tokens = append(tokens, op)
+		} else {
+			tokens = append(tokens, models.Trash{})
+		}
 	}
 
-	return result
+	return tokens
 }
 
+// Parse ...
 // Function for slicing out expressions into tokens
 //
 // one token is a word until the next white space

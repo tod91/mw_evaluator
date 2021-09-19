@@ -1,6 +1,9 @@
 package math
 
-import "mw_evaluator/models"
+import (
+	"mw_evaluator/errors"
+	"mw_evaluator/models"
+)
 
 func Eval(tokens []models.Token) int {
 	result := tokens[2].(models.Operand).GetValue()
@@ -25,7 +28,7 @@ func Eval(tokens []models.Token) int {
 			result = operator.Evaluate(result, next)
 
 		default:
-			panic("can't handle this")
+			panic(errors.ErrInvalidToken)
 		}
 
 		expectOperand = !expectOperand
