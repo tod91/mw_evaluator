@@ -7,6 +7,7 @@ import (
 
 func Eval(tokens []models.Token) (int, error) {
 	result := tokens[2].(models.Operand).GetValue()
+
 	var next int
 	var operator models.Operator
 

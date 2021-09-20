@@ -11,15 +11,13 @@ import (
 // Function for slicing out expressions into tokens
 //
 // one token is a word until the next white space
-func Parse(expression string) []models.Token {
-	// remove any trailing question marks
-	trimmedEpx := strings.Trim(expression, "?")
-	return toTokens(strings.Split(trimmedEpx, " "))
+func Parse(expression []string) []models.Token {
+	return toTokens(expression)
 }
 
 func toTokens(words []string) []models.Token {
 	var tokens []models.Token
-	for i := 0; i < len(words); i++ {
+	for i := 2; i < len(words); i++ {
 		curr := words[i]
 		if curr == "multiplied" || curr == "divided" {
 			curr += " " + nextWord(words, i)
@@ -46,7 +44,7 @@ func isOperator(token string) bool {
 }
 
 func asOperator(token string) (models.Operator, error) {
-	return models.NewOperatorFrom(strings.ToLower(token))
+	return models.NewOperatorFrom(token)
 }
 
 func isNumber(t string) bool {
@@ -56,6 +54,16 @@ func isNumber(t string) bool {
 
 func asNumber(t string) (int, error) {
 	return strconv.Atoi(t)
+}
+
+func PreProcessExp(expression string) []string {
+	trimmedExp := toLower(expression)
+	trimmedExp = strings.Trim(trimmedExp, "?")
+	return strings.Split(trimmedExp, " ")
+}
+
+func toLower(expr string) string {
+	return strings.ToLower(expr)
 }
 
 func nextWord(words []string, i int) string {

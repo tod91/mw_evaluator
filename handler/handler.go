@@ -5,8 +5,11 @@ package handler
 import (
 	"encoding/json"
 	"log"
+	"mw_evaluator/errtracker"
 	"mw_evaluator/math"
+	"mw_evaluator/models"
 	"mw_evaluator/parser"
+	"mw_evaluator/validator"
 	"net/http"
 )
 
@@ -23,12 +26,13 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		{
-			panic(err.Error())
-		}
+		panic(err.Error())
 	}
 
-	tokens := parser.Parse(input["expression"])
+	rdyForParsing := parser.PreProcessExp(input["expression"])
+	tokens := parser.Parse(rdyForParsing)
+	validator.IsOk(tokens, rdyForParsing, "/evaluate")
+
 	result, _ := math.Eval(tokens)
 
 	resp := map[string]int{
@@ -49,21 +53,20 @@ func validate(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		{
-			panic(err.Error())
-		}
+		panic(err.Error())
 	}
 
-	resp := map[string]bool{}
-	tokens := parser.Parse(input["expression"])
-	_, err = math.Eval(tokens)
+	resp := models.ValidateResp{}
+
+	rdyForParsing := parser.PreProcessExp(input["expression"])
+	tokens := parser.Parse(rdyForParsing)
+	resp.Valid, err = validator.IsOk(tokens, rdyForParsing, "/validate")
+
 	if err != nil {
-		resp["valid"] = false
-	} else {
-		resp["valid"] = true
+		resp.Reason = err.Error()
 	}
 
-	jData, err := json.Marshal(resp)
+	jData, err := json.Marshal(&resp)
 	if err != nil {
 		panic("cannot marshal resp")
 	}
@@ -74,5 +77,17 @@ func validate(w http.ResponseWriter, r *http.Request) {
 }
 
 func errors(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
+	resp, err := errtracker.Tracker.GetAll()
+	if err != nil {
+		panic("cannot get asd")
+	}
+
+	jData, err := json.Marshal(resp)
+
+	if err != nil {
+		panic("cannot marshal resp")
+	}
+	w.Header().Add("Content-Type", "application/json")
+
+	w.Write(jData)
 }
