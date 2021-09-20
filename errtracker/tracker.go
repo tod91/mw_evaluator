@@ -5,14 +5,14 @@ import (
 	"sync"
 )
 
+var Tracker = &errStorage{table: make(map[string]*failedExpression)}
+
+type failedExpression models.ErrResp
+
 type errStorage struct {
 	mu    sync.Mutex
 	table map[string]*failedExpression
 }
-
-var Tracker = &errStorage{table: make(map[string]*failedExpression)}
-
-type failedExpression models.ErrResp
 
 func (t *errStorage) Save(expression, endpoint string, e error) {
 	t.mu.Lock()
@@ -25,7 +25,7 @@ func (t *errStorage) Save(expression, endpoint string, e error) {
 	t.table[expression].Endpoint = endpoint
 	t.table[expression].Frequency = t.table[expression].Frequency + 1
 	t.table[expression].Expression = expression
-	t.table[expression].ErrType = e
+	t.table[expression].ErrType = e.Error()
 }
 
 func (t *errStorage) GetAll() ([]*failedExpression, error) {

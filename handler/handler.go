@@ -25,15 +25,20 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 	var input map[string]string
 
 	err := json.NewDecoder(r.Body).Decode(&input)
+
 	if err != nil {
 		panic(err.Error())
 	}
 
 	rdyForParsing := parser.PreProcessExp(input["expression"])
 	tokens := parser.Parse(rdyForParsing)
-	validator.IsOk(tokens, rdyForParsing, "/evaluate")
+	ok, _ := validator.IsOk(tokens, rdyForParsing, "/evaluate")
 
-	result, _ := math.Eval(tokens)
+	if !ok {
+		panic("expression didn't pass validation")
+	}
+
+	result := math.Eval(tokens)
 
 	resp := map[string]int{
 		"result": result,
@@ -43,8 +48,8 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic("cannot marshal resp")
 	}
-	w.Header().Add("Content-Type", "application/json")
 
+	w.Header().Add("Content-Type", "application/json")
 	w.Write(jData)
 }
 
@@ -67,11 +72,12 @@ func validate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jData, err := json.Marshal(&resp)
+
 	if err != nil {
 		panic("cannot marshal resp")
 	}
-	w.Header().Add("Content-Type", "application/json")
 
+	w.Header().Add("Content-Type", "application/json")
 	w.Write(jData)
 
 }

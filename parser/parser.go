@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+func PreProcessExp(expression string) []string {
+	trimmedExp := toLower(expression)
+	trimmedExp = strings.Trim(trimmedExp, " ")
+	trimmedExp = strings.Trim(trimmedExp, "?")
+	return strings.Split(trimmedExp, " ")
+}
+
 // Parse ...
 // Function for slicing out expressions into tokens
 //
@@ -54,12 +61,6 @@ func isNumber(t string) bool {
 
 func asNumber(t string) (int, error) {
 	return strconv.Atoi(t)
-}
-
-func PreProcessExp(expression string) []string {
-	trimmedExp := toLower(expression)
-	trimmedExp = strings.Trim(trimmedExp, "?")
-	return strings.Split(trimmedExp, " ")
 }
 
 func toLower(expr string) string {

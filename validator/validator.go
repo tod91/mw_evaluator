@@ -9,19 +9,42 @@ import (
 
 func IsOk(tokens []models.Token, expression []string, endpoint string) (bool, error) {
 	exprStr := strings.Join(expression, " ")
+
 	// Edge case in case out math request doesn't start with 'What is'
 	if isBeginningWhatIs(expression[0], expression[1]) {
-		errtracker.Tracker.Save(exprStr, endpoint, errors.ErrInvalidSyntax)
-		return false, errors.ErrInvalidSyntax
+		errtracker.Tracker.Save(exprStr, endpoint, errors.ErrNonMath)
+		return false, errors.ErrNonMath
 	}
 
 	return validateRestOfExpr(tokens, endpoint, exprStr)
 
 }
 
+func isBeginningWhatIs(what, is string) bool {
+
+	return what != "what" || is != "is"
+}
+
 func validateRestOfExpr(tokens []models.Token, endpoint, exprAsString string) (bool, error) {
+	if len(tokens) < 2 {
+		return true, nil
+	}
+
+	// Edge case of unsupported functionality
+	// ex. 'What is 5 cubed?'
+	if len(tokens) < 3 {
+		switch tokens[1].(type) {
+		case models.Operator:
+			errtracker.Tracker.Save(exprAsString, endpoint, errors.ErrInvalidSyntax)
+			return false, errors.ErrInvalidSyntax
+		default:
+			errtracker.Tracker.Save(exprAsString, endpoint, errors.ErrUnsupportedOp)
+			return false, errors.ErrUnsupportedOp
+		}
+	}
+
 	expectOperand := true
-	for _, t := range tokens[2:] {
+	for i, t := range tokens[2:] {
 		switch t.(type) {
 		case models.Operator:
 			if expectOperand {
@@ -36,6 +59,10 @@ func validateRestOfExpr(tokens []models.Token, endpoint, exprAsString string) (b
 			}
 
 		default:
+			if !expectOperand && i%2 != 0 {
+				errtracker.Tracker.Save(exprAsString, endpoint, errors.ErrUnsupportedOp)
+				return false, errors.ErrUnsupportedOp
+			}
 			errtracker.Tracker.Save(exprAsString, endpoint, errors.ErrNonMath)
 			return false, errors.ErrNonMath
 		}
@@ -45,13 +72,3 @@ func validateRestOfExpr(tokens []models.Token, endpoint, exprAsString string) (b
 
 	return true, nil
 }
-
-func isBeginningWhatIs(what, is string) bool {
-	return what != "what" || is != "is"
-}
-
-// examine tokens after parse
-// 1. Trash Trash Operand, operator, Operand ... -> valid
-// 2. Trash trash Operand, trash, operand -> Unknown operator
-// 3. trash tRASH  Operand, operator operator operand -> invalid syntax
-// 4. non math expresion

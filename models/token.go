@@ -25,6 +25,11 @@ type Operand interface {
 }
 
 type Trash struct{}
+type WhatIs struct{}
+
+func (op *WhatIs) GetValue() int {
+	return -1
+}
 
 type Number struct {
 	Value int

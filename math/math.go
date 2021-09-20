@@ -5,35 +5,31 @@ import (
 	"mw_evaluator/models"
 )
 
-func Eval(tokens []models.Token) (int, error) {
-	result := tokens[2].(models.Operand).GetValue()
+func Eval(tokens []models.Token) int {
+	// Returns number constants
+	// ex. 'What is 5?'
+	if len(tokens) < 2 {
+		return tokens[0].(models.Operand).GetValue()
+	}
+
+	result := tokens[0].(models.Operand).GetValue()
 
 	var next int
 	var operator models.Operator
 
-	expectOperand := false
-	for _, t := range tokens[3:] {
+	for _, t := range tokens[1:] {
 		switch v := t.(type) {
 		case models.Operator:
-			if expectOperand {
-				panic("return error")
-			}
-
 			operator = v
-		case models.Operand:
-			if !expectOperand {
-				panic("return error")
-			}
 
+		case models.Operand:
 			next = v.GetValue()
 			result = operator.Evaluate(result, next)
 
 		default:
-			panic(errors.ErrInvalidToken)
+			panic(errors.ErrInvalidToken.Error())
 		}
-
-		expectOperand = !expectOperand
 	}
 
-	return result, nil
+	return result
 }

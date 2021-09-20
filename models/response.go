@@ -7,8 +7,8 @@ type ValidateResp struct {
 }
 
 type ErrResp struct {
-	Endpoint   string
-	Frequency  int
-	ErrType    error
-	Expression string
+	Endpoint   string `json:"endpoint"`
+	Frequency  int    `json:"frequency"`
+	ErrType    string `json:"type"`
+	Expression string `json:"expression"`
 }
