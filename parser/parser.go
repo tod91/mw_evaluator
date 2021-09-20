@@ -1,4 +1,4 @@
-// Package parser ...
+// Package parser take our expression as a string and converts it in a format that the math module recognizes
 package parser
 
 import (
@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+// PreProcessExp ...
+//
+// Processes the entire expression and prepares it in a format understood by the parser
 func PreProcessExp(expression string) []string {
 	trimmedExp := toLower(expression)
 	trimmedExp = strings.Trim(trimmedExp, " ")
@@ -15,8 +18,8 @@ func PreProcessExp(expression string) []string {
 }
 
 // Parse ...
-// Function for slicing out expressions into tokens
 //
+// Function for slicing out expressions into tokens
 // one token is a word until the next white space
 func Parse(expression []string) []models.Token {
 	return toTokens(expression)

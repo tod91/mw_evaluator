@@ -1,3 +1,4 @@
+// Package errtracker defines our global error tracker structure for keeping track of errors that might occur
 package errtracker
 
 import (
@@ -5,6 +6,9 @@ import (
 	"sync"
 )
 
+// Tracker ...
+//
+// will be used by all requests to take snapshots or different errors that might occur
 var Tracker = &errStorage{table: make(map[string]*failedExpression)}
 
 type failedExpression models.ErrResp
@@ -33,7 +37,7 @@ func (t *errStorage) GetAll() ([]*failedExpression, error) {
 	defer t.mu.Unlock()
 
 	if t.table == nil {
-		panic("uinitialized map variable")
+		panic("uninitialized map variable")
 	}
 
 	var retVal []*failedExpression

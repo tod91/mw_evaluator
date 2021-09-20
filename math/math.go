@@ -1,3 +1,4 @@
+// Package math handlers the actual evaluation of our math expression
 package math
 
 import (
@@ -5,6 +6,9 @@ import (
 	"mw_evaluator/models"
 )
 
+// Eval ...
+//
+// Function that takes the parsed expression calculates it and returns the result
 func Eval(tokens []models.Token) int {
 	// Returns number constants
 	// ex. 'What is 5?'

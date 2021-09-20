@@ -1,5 +1,4 @@
-// A Module for handling incoming REST requests from the client(in our case curl)
-
+// Package handler registers and processes any incoming requests
 package handler
 
 import (
@@ -13,6 +12,9 @@ import (
 	"net/http"
 )
 
+// StartServer ...
+//
+// Function that registers all of our handlers and starts the server
 func StartServer() {
 	http.HandleFunc("/evaluate", evaluate)
 	http.HandleFunc("/validate", validate)
@@ -50,7 +52,7 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Add("Content-Type", "application/json")
-	w.Write(jData)
+	_, _ = w.Write(jData)
 }
 
 func validate(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +80,7 @@ func validate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Add("Content-Type", "application/json")
-	w.Write(jData)
+	_, _ = w.Write(jData)
 
 }
 
@@ -95,5 +97,5 @@ func errors(w http.ResponseWriter, _ *http.Request) {
 	}
 	w.Header().Add("Content-Type", "application/json")
 
-	w.Write(jData)
+	_, _ = w.Write(jData)
 }

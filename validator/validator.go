@@ -1,3 +1,4 @@
+// Package validator defines logic for checking if a given expression is valid
 package validator
 
 import (
@@ -7,6 +8,9 @@ import (
 	"strings"
 )
 
+// IsOk ...
+//
+// Checks wether a passed expression is valid
 func IsOk(tokens []models.Token, expression []string, endpoint string) (bool, error) {
 	exprStr := strings.Join(expression, " ")
 
