@@ -3,6 +3,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"mw_evaluator/errtracker"
 	"mw_evaluator/math"
@@ -37,13 +38,24 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 	ok, _ := validator.IsOk(tokens, rdyForParsing, "/evaluate")
 
 	if !ok {
-		panic("expression didn't pass validation")
+		resp := map[string]string{
+			"result": "expression is invalid",
+		}
+
+		jData, err := json.Marshal(resp)
+		if err != nil {
+			panic("cannot marshal resp")
+		}
+
+		w.Header().Add("Content-Type", "application/json")
+		_, _ = w.Write(jData)
+		return
 	}
 
 	result := math.Eval(tokens)
 
-	resp := map[string]int{
-		"result": result,
+	resp := map[string]string{
+		"result": fmt.Sprintf("%d", result),
 	}
 
 	jData, err := json.Marshal(resp)
