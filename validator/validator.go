@@ -48,7 +48,7 @@ func validateRestOfExpr(tokens []models.Token, endpoint, exprAsString string) (b
 	}
 
 	expectOperand := true
-	for i, t := range tokens[2:] {
+	for i, t := range tokens {
 		switch t.(type) {
 		case models.Operator:
 			if expectOperand {
