@@ -32,7 +32,7 @@ func (t *errStorage) Save(expression, endpoint string, e error) {
 	t.table[expression].ErrType = e.Error()
 }
 
-func (t *errStorage) GetAll() ([]*failedExpression, error) {
+func (t *errStorage) GetAll() []*failedExpression {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -44,5 +44,5 @@ func (t *errStorage) GetAll() ([]*failedExpression, error) {
 	for _, v := range t.table {
 		retVal = append(retVal, v)
 	}
-	return retVal, nil
+	return retVal
 }

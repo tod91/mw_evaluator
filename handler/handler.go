@@ -97,10 +97,7 @@ func validate(w http.ResponseWriter, r *http.Request) {
 }
 
 func errors(w http.ResponseWriter, _ *http.Request) {
-	resp, err := errtracker.Tracker.GetAll()
-	if err != nil {
-		panic("cannot get asd")
-	}
+	resp := errtracker.Tracker.GetAll()
 
 	jData, err := json.Marshal(resp)
 
